@@ -49,6 +49,7 @@ app.get("/book",async(req,res)=>{
 app.get("/book/:id",async(req,res)=>{
     const id = req.params.id
     const book = await Book.findById(id) //returns object
+    // Book.find({id : id}) is not used because of performance and other factor
     if(!book){
         return res.status(404).json({
             message: "Book not found"
@@ -61,8 +62,18 @@ app.get("/book/:id",async(req,res)=>{
 }
 )
 
-//Delete Single Book using GET Method
-app.get("/deletebook/:id",async(req,res)=>{
+// //Delete Single Book using GET Method
+// app.get("/deletebook/:id",async(req,res)=>{
+//     const id = req.params.id
+//     await Book.findByIdAndDelete(id)
+//     res.status(200).json({
+//         message : "Book Deleted Sucessfully"
+//     })
+// })
+//due to security reasons we use delete method to delete the book
+
+//Delete Single Book using DELETE Method
+app.delete("/book/:id",async(req,res)=>{
     const id = req.params.id
     await Book.findByIdAndDelete(id)
     res.status(200).json({
@@ -70,6 +81,22 @@ app.get("/deletebook/:id",async(req,res)=>{
     })
 })
 
+//Update Single Book using PATCH Method
+app.patch("/book/:id",async(req,res)=>{
+    const id = req.params.id
+    const {bookName,bookPrice,isbnNumber,authorName,publishedAt,publication} = req.body
+    await Book.findByIdAndUpdate(id,{
+        bookName,
+        bookPrice,
+        isbnNumber,
+        authorName,
+        publishedAt,
+        publication,
+    })
+    res.status(200).json({
+        message : "Book Updated Sucessfully"
+    })
+})
 
 
 
