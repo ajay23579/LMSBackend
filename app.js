@@ -14,13 +14,15 @@ app.use(express.json())
 
 connectToDatabase()
 app.get('/',(req,res)=>{
-    res.send('bye World')
+    res.json({
+        message:"Hello World"
+    })
 })
 
 
-
+// create Book
 app.post('/book',async(req,res)=>{
-    const {bookName,bookPrice,isbnNumber,authorName,publishedAt,publication} = req.body
+    const {bookName,bookPrice,isbnNumber,authorName,publishedAt,publication} = req.body //destructuring
     await Book.create({
         bookName,
         bookPrice,
@@ -34,7 +36,7 @@ app.post('/book',async(req,res)=>{
     })
 })
 
-
+//all read
 app.get("/book",async(req,res)=>{
     const books = await Book.find()
     res.status(200).json({
@@ -45,19 +47,32 @@ app.get("/book",async(req,res)=>{
 
 //single read
 app.get("/book/:id",async(req,res)=>{
-    console.log(req.params.id)
-    const book = await Book.findById(id) //returns object\
+    const id = req.params.id
+    const book = await Book.findById(id) //returns object
     if(!book){
         return res.status(404).json({
-            message : "Book not found"
-        })
-    }else{
+            message: "Book not found"
+        });
+        }
     res.status(200).json({
         message : "Book found",
         data : book
     })
 }
+)
+
+//Delete Single Book using GET Method
+app.get("/deletebook/:id",async(req,res)=>{
+    const id = req.params.id
+    await Book.findByIdAndDelete(id)
+    res.status(200).json({
+        message : "Book Deleted Sucessfully"
+    })
 })
+
+
+
+
 
 
 app.listen(3000,()=>{
