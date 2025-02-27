@@ -1,6 +1,10 @@
 const express = require('express')
 const app = express()
 const connectToDatabase = require('./database/index.js')
+const fs = require('fs')
+
+
+
 const Book = require('./model/book.Model.js')
 
 
@@ -26,6 +30,11 @@ app.get('/',(req,res)=>{
 
 // create Book
 app.post('/book',upload.single("image"),async(req,res)=>{
+    if(!req.file){
+        fileName = "http://localhost:3000/1740645702165-download.png"
+    }else{
+        fileName = "http://localhost:3000/" + req.file.filename
+    }
     const {bookName,bookPrice,isbnNumber,authorName,publishedAt,publication} = req.body //destructuring
     await Book.create({
         bookName,
@@ -34,6 +43,7 @@ app.post('/book',upload.single("image"),async(req,res)=>{
         authorName,
         publishedAt,
         publication,
+        imageUrl : fileName
     })
     res.json({
         message:"Book created"
@@ -86,9 +96,27 @@ app.delete("/book/:id",async(req,res)=>{
 })
 
 //Update Single Book using PATCH Method
-app.patch("/book/:id",async(req,res)=>{
+app.patch("/book/:id",upload.single("image"),async(req,res)=>{
     const id = req.params.id
     const {bookName,bookPrice,isbnNumber,authorName,publishedAt,publication} = req.body
+    const oldDatas = await Book.findById(id)
+    if(req.file){
+        const oldImagePath = oldDatas.imageUrl
+        console.log(req.file)
+        console.log(oldDatas)
+        console.log(oldImagePath)
+        const localHostUrlLength = "http://localhost:3000/".length
+        const newOldImagePath = oldImagePath.slice(localHostUrlLength)
+        console.log(newOldImagePath)
+        fs.unlink( `storage/${newOldImagePath}`,(err)=>{
+            if(err){
+                console.log(err)
+            }else{
+                console.log("Deleted Sucessfully")
+            }
+        })
+        fileName = "http://localhost:3000/" + req.file.filename
+    }
     await Book.findByIdAndUpdate(id,{
         bookName,
         bookPrice,
@@ -96,6 +124,7 @@ app.patch("/book/:id",async(req,res)=>{
         authorName,
         publishedAt,
         publication,
+        imageUrl : fileName
     })
     res.status(200).json({
         message : "Book Updated Sucessfully"
@@ -105,6 +134,8 @@ app.patch("/book/:id",async(req,res)=>{
 
 
 
+
+app.use(express.static('./storage/'))
 
 app.listen(3000,()=>{
     console.log('server is running on http://localhost:3000');
