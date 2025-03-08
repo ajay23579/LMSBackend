@@ -14,7 +14,7 @@ const storage = multer.diskStorage({
             cb(new Error("File size is too large"))  //cb(error)
             return
         }
-        cb(null,'./storage') // --> cb(error,sucess)
+        cb(null,'./storage/image/') // --> cb(error,sucess)
 
     },
     filename : function(req,file,cb){

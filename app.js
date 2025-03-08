@@ -4,6 +4,10 @@ const connectToDatabase = require('./database/index.js')
 const fs = require('fs')
 
 
+//cors package
+const cors = require('cors')
+
+
 
 const Book = require('./model/book.Model.js')
 
@@ -11,6 +15,12 @@ const Book = require('./model/book.Model.js')
 // multerconfig import
 const {multer ,storage} = require('./middleware/multerConfig.js')
 const upload = multer({storage : storage})
+
+
+app.use(cors({
+    origin : '*'
+}))
+
 
 
 app.use(express.json())
@@ -115,7 +125,7 @@ app.patch("/book/:id",upload.single("image"),async(req,res)=>{
                 console.log("Deleted Sucessfully")
             }
         })
-        fileName = "http://localhost:3000/" + req.file.filename
+        const fileName = "http://localhost:3000/" + req.file.filename
     }
     await Book.findByIdAndUpdate(id,{
         bookName,
