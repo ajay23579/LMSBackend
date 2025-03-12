@@ -64,6 +64,7 @@ app.post('/book',upload.single("image"),async(req,res)=>{
 app.get("/book",async(req,res)=>{
     const books = await Book.find()
     res.status(200).json({
+        message : "Book Fetched Sucessfully",
         data : books
     })
 })
@@ -145,7 +146,7 @@ app.patch("/book/:id",upload.single("image"),async(req,res)=>{
 
 
 
-app.use(express.static('./storage/'))
+app.use(express.static('./storage/image'))
 
 app.listen(3000,()=>{
     console.log('server is running on http://localhost:3000');
