@@ -2,16 +2,9 @@ const express = require('express')
 const app = express()
 const connectToDatabase = require('./database/index.js')
 const fs = require('fs')
-
-
 //cors package
 const cors = require('cors')
-
-
-
 const Book = require('./model/book.Model.js')
-
-
 // multerconfig import
 const {multer ,storage} = require('./middleware/multerConfig.js')
 const upload = multer({storage : storage})
@@ -21,16 +14,13 @@ app.use(cors({
     origin : '*'
 }))
 
-
-
 app.use(express.json())
 // app.use(express.urlencoded({extended:true})) // for not using react as front end
 
-
-
-
-
 connectToDatabase()
+
+
+
 app.get('/',(req,res)=>{
     res.json({
         message:"Hello World"
@@ -41,7 +31,7 @@ app.get('/',(req,res)=>{
 // create Book
 app.post('/book',upload.single("image"),async(req,res)=>{
     if(!req.file){
-        fileName = "http://localhost:3000/1740645702165-download.png"
+        filename = "http://localhost:3000/1740645702165-download.png"
     }else{
         fileName = "http://localhost:3000/" + req.file.filename
     }
@@ -58,6 +48,7 @@ app.post('/book',upload.single("image"),async(req,res)=>{
     res.json({
         message:"Book created"
     })
+    console.log(req.file)
 })
 
 //all read
@@ -111,15 +102,22 @@ app.patch("/book/:id",upload.single("image"),async(req,res)=>{
     const id = req.params.id
     const {bookName,bookPrice,isbnNumber,authorName,publishedAt,publication} = req.body
     const oldDatas = await Book.findById(id)
+    if(!oldDatas){
+        return res.status(404).json({ message: "Book not found" });
+    }
+
+
+    let fileName = oldDatas.imageUrl
+
     if(req.file){
         const oldImagePath = oldDatas.imageUrl
-        console.log(req.file)
-        console.log(oldDatas)
-        console.log(oldImagePath)
+        console.log("Old Image Path",oldImagePath)
+
         const localHostUrlLength = "http://localhost:3000/".length
         const newOldImagePath = oldImagePath.slice(localHostUrlLength)
-        console.log(newOldImagePath)
-        fs.unlink( `storage/${newOldImagePath}`,(err)=>{
+        console.log("Image to be deleted",newOldImagePath)
+
+        fs.unlink( `storage/image/${newOldImagePath}`,(err)=>{
             if(err){
                 console.log(err)
             }else{
